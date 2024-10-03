@@ -96,8 +96,7 @@ async def handle_message(update: Update, context):
                             )
                         await context.bot.send_message(
                             chat_id=update.effective_chat.id,
-                            text=response,
-                            parse_mode='HTML'
+                            text=response
                         )
 
                         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(tweet_info['media_images'], 'rb'))
