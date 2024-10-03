@@ -99,7 +99,7 @@ async def handle_message(update: Update, context):
                             text=response
                         )
 
-                        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(tweet_info['media_images'], 'rb'))
+                        # await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(tweet_info['media_images'], 'rb'))
                     except Exception as e:
 
                         # Log specific error for debugging
