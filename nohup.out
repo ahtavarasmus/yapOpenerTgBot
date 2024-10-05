@@ -37,3 +37,6 @@ send?
 hey image: https://pbs.twimg.com/media/GY65CS_bQAACXZ0?format=jpg&name=small
 send?
 reply Yapper No video support :(
+Sending video: <coroutine object get_video_link at 0x7f7ae6d41a10>
+sys:1: RuntimeWarning: coroutine 'get_video_link' was never awaited
+RuntimeWarning: Enable tracemalloc to get the object allocation traceback

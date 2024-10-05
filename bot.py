@@ -1,4 +1,5 @@
 import os
+import requests
 import re
 from playwright.async_api import async_playwright
 from telegram import Update,InputMediaPhoto
@@ -78,12 +79,21 @@ async def extract_tweet_info(url):
         img_elems = await page.query_selector_all("img[src*='media']")
         tweet_info['media_images'] = [await img.get_attribute('src') for img in img_elems] if img_elems else None
 
-        video_link = get_video_link(url)
+        video_link = await get_video_link(url)
         tweet_info['video_url'] = video_link
         
         await browser.close()
         
         return tweet_info
+
+
+async def download_video(video_url, local_path):
+    response = requests.get(video_url)
+    if response.status_code == 200:
+        with open(local_path, 'wb') as f:
+            f.write(response.content)
+            return local_path
+    return None
 
 async def handle_message(update: Update, context):
     message_text = update.message.text
@@ -120,11 +130,20 @@ async def handle_message(update: Update, context):
 
                         # Send the video if a video URL is present
                         if 'video_url' in tweet_info and tweet_info['video_url']:
-                            print(f"Sending video: {tweet_info['video_url']}")
-                            await context.bot.send_video(
-                                chat_id=update.effective_chat.id,
-                                video=tweet_info['video_url']
-                            )
+                            local_video_path = 'downloaded_video.mp4'
+                            video_url_cleaned = tweet_info['video_url'].split('?')[0]  # Clean URL
+
+                            downloaded_path = await download_video(video_url_cleaned, local_video_path)
+                            if downloaded_path:
+                                with open(downloaded_path, 'rb') as video_file:
+                                    print(f"Sending video: {downloaded_path}")
+                                    await context.bot.send_video(
+                                        chat_id=update.effective_chat.id,
+                                        video=video_file
+                                    )
+                                os.remove(downloaded_path)  # Delete local file after sending
+                            else:
+                                await update.message.reply_text("Failed to download the video.")
                         
                         if tweet_info['media_images']:
                             if len(tweet_info['media_images']) == 1:
