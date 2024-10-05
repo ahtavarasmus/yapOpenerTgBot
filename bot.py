@@ -38,6 +38,10 @@ async def get_video_link(url):
 
 
         
+def transform_twitter_link(original_link):
+    # Replace the base URL
+    transformed_link = original_link.replace("https://x.com/", "https://fxtwitter.com/")
+    return transformed_link
 
     
 
@@ -58,7 +62,7 @@ async def extract_tweet_info(url):
         username = page.locator('div[data-testid="User-Name"] a span').first
         
 
-        tweet_info['url'] = url
+        tweet_info['url'] = transform_twitter_link(url)
         
         # Extract the text content of the username
         tweet_info['author'] = await username.text_content() if username else 'Unknown'
@@ -76,11 +80,11 @@ async def extract_tweet_info(url):
         tweet_info['text'] = await text_elem.inner_text() if text_elem else ''
         
         # Check for image
-        img_elems = await page.query_selector_all("img[src*='media']")
-        tweet_info['media_images'] = [await img.get_attribute('src') for img in img_elems] if img_elems else None
+        #img_elems = await page.query_selector_all("img[src*='media']")
+        #tweet_info['media_images'] = [await img.get_attribute('src') for img in img_elems] if img_elems else None
 
-        video_link = await get_video_link(url)
-        tweet_info['video_url'] = video_link
+        #video_link = await get_video_link(url)
+        #tweet_info['video_url'] = video_link
         
         await browser.close()
         
@@ -97,8 +101,8 @@ async def download_video(video_url, local_path):
 
 async def handle_message(update: Update, context):
     message_text = update.message.text
-    twitter_links = re.findall(r'https?://(?:www\.)?(?:twitter\.com|x\.com)/\S+', message_text)
-    remaining_text = re.sub(r'https?://(?:www\.)?(?:twitter\.com|x\.com)/\S+', '', message_text).strip()
+    twitter_links = re.findall(r'https?://(?:www\.)?(?:fxtwitter\.com|twitter\.com|x\.com)/\S+', message_text)
+    remaining_text = re.sub(r'https?://(?:www\.)?(?:twitter\.com|x\.com|fxtwitter\.com)/\S+', '', message_text).strip()
     # Get the user who sent the message
     user = update.message.from_user
     user_name = user.full_name if user.full_name else user.username
@@ -128,6 +132,7 @@ async def handle_message(update: Update, context):
                     try:
                         # Delete the user's original message
 
+                        """
                         # Send the video if a video URL is present
                         if 'video_url' in tweet_info and tweet_info['video_url']:
                             local_video_path = 'downloaded_video.mp4'
@@ -164,11 +169,12 @@ async def handle_message(update: Update, context):
                                     chat_id=update.effective_chat.id,
                                     text=response
                                 )
-                        else:
-                            await context.bot.send_message(
-                                    chat_id=update.effective_chat.id,
-                                    text=response
-                                )
+
+                        """
+                        await context.bot.send_message(
+                                chat_id=update.effective_chat.id,
+                                text=response
+                            )
                         if not update.message.reply_to_message:
                             await context.bot.delete_message(
                                 chat_id=update.effective_chat.id,
