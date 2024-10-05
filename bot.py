@@ -79,7 +79,7 @@ async def extract_tweet_info(url):
         tweet_info['media_images'] = [await img.get_attribute('src') for img in img_elems] if img_elems else None
 
         video_link = get_video_link(url)
-        tweet_info['video'] = video_link
+        tweet_info['video_url'] = video_link
         
         await browser.close()
         
@@ -117,6 +117,14 @@ async def handle_message(update: Update, context):
 
                     try:
                         # Delete the user's original message
+
+                        # Send the video if a video URL is present
+                        if 'video_url' in tweet_info and tweet_info['video_url']:
+                            print(f"Sending video: {tweet_info['video_url']}")
+                            await context.bot.send_video(
+                                chat_id=update.effective_chat.id,
+                                video=tweet_info['video_url']
+                            )
                         
                         if tweet_info['media_images']:
                             if len(tweet_info['media_images']) == 1:

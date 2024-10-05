@@ -25,3 +25,15 @@ Traceback (most recent call last):
   File "/home/rasmus/openlink/bot.py", line 63, in handle_message
     message_text = update.message.text
 AttributeError: 'NoneType' object has no attribute 'text'
+hey image: https://pbs.twimg.com/media/GY6KgAOa0AAsXmT?format=jpg&name=small
+send?
+reply None
+hey image: https://pbs.twimg.com/media/GY_GOx_bAAMoE9k?format=jpg&name=small
+send?
+hey image: https://pbs.twimg.com/media/GY-A3YeXIAAnf10?format=jpg&name=small
+send?
+hey image: https://pbs.twimg.com/media/GY8LmdeXgAAHi9q?format=jpg&name=small
+send?
+hey image: https://pbs.twimg.com/media/GY65CS_bQAACXZ0?format=jpg&name=small
+send?
+reply Yapper No video support :(
