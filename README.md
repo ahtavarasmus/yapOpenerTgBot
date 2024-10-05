@@ -1,6 +1,9 @@
 # Telegram bot that opens X links fully to the chat
 Name on telegram: @yapOpenerBot
 
+<img width="413" alt="image" src="https://github.com/user-attachments/assets/d5dfc679-8c03-42ba-ba16-1a242d445fb8">
+
+
 ## For getting the bot running locally
 ### install
 ```
