@@ -1,0 +1,27 @@
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_application.py", line 1335, in process_update
+    await coroutine
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_handlers/basehandler.py", line 158, in handle_update
+    return await self.callback(update, context)
+  File "/home/rasmus/openlink/bot.py", line 63, in handle_message
+    message_text = update.message.text
+AttributeError: 'NoneType' object has no attribute 'text'
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_application.py", line 1335, in process_update
+    await coroutine
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_handlers/basehandler.py", line 158, in handle_update
+    return await self.callback(update, context)
+  File "/home/rasmus/openlink/bot.py", line 63, in handle_message
+    message_text = update.message.text
+AttributeError: 'NoneType' object has no attribute 'text'
+No error handlers are registered, logging exception.
+Traceback (most recent call last):
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_application.py", line 1335, in process_update
+    await coroutine
+  File "/home/rasmus/openlink/venv/lib/python3.10/site-packages/telegram/ext/_handlers/basehandler.py", line 158, in handle_update
+    return await self.callback(update, context)
+  File "/home/rasmus/openlink/bot.py", line 63, in handle_message
+    message_text = update.message.text
+AttributeError: 'NoneType' object has no attribute 'text'

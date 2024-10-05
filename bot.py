@@ -1,7 +1,7 @@
 import os
 import re
 from playwright.async_api import async_playwright
-from telegram import Update
+from telegram import Update,InputMediaPhoto
 from telegram.ext import Application, CommandHandler, MessageHandler, filters
 from dotenv import load_dotenv
 
@@ -12,6 +12,33 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_BEARER')
 
 async def start(update: Update, context):
     await update.message.reply_text('Bot is running. Use /preview command followed by a Twitter/X link to get a preview.')
+
+async def get_video_link(url):
+    # https://twitsave.com/info?url=<url param here>
+    # find a video from the page with playwright and get the video src url
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)
+        page = await browser.new_page()
+        
+        await page.goto(f"https://twitsave.com/info?url={url}")
+        await page.wait_for_load_state("networkidle")  # Wait until the network is idle
+ 
+        # Check for videos
+        video_elems = await page.query_selector_all("video")
+        video_urls = [await video.get_attribute('src') for video in video_elems] if video_elems else []
+        if video_urls:
+            video_url = video_urls[0]
+        else:
+            video_url = None
+        
+        await browser.close()
+
+        return video_url
+
+
+        
+
+    
 
 async def extract_tweet_info(url):
     async with async_playwright() as p:
@@ -50,10 +77,9 @@ async def extract_tweet_info(url):
         # Check for image
         img_elems = await page.query_selector_all("img[src*='media']")
         tweet_info['media_images'] = [await img.get_attribute('src') for img in img_elems] if img_elems else None
-        
-        # Check for videos
-        video_elems = await page.query_selector_all("video")
-        tweet_info['videos'] = [await video.get_attribute('src') for video in video_elems] if video_elems else []
+
+        video_link = get_video_link(url)
+        tweet_info['video'] = video_link
         
         await browser.close()
         
@@ -70,36 +96,59 @@ async def handle_message(update: Update, context):
     if twitter_links:
         if update.message.reply_to_message:
             replied_message = update.message.reply_to_message
-            
-            # Extract the sender of the replied-to message
+            # Get the user who sent the replied-to message
             replied_user_name = replied_message.from_user.full_name if replied_message.from_user.full_name else replied_message.from_user.username
-            replied_message_text = replied_message.text  # The text of the replied message
+
+            replied_message_text = replied_message.text
+            print("reply",replied_message_text)
+
 
         for link in twitter_links:
             try:
                 tweet_info = await extract_tweet_info(link)
                 
                 if tweet_info:
-                    response = f"{user_name}: {remaining_text}\n\n{tweet_info['author']}\n\n{tweet_info['text']}"
-                    if tweet_info['media_images']:
-                        response += f"\n{tweet_info['media_images']}\n"
-                    if tweet_info['videos']:
-                        response += "\n\nVideos:\n" + "\n.join(tweet_info['videos'])"
-                    response += f"\n{tweet_info['url']}"
-                    
+
+                    response = f"{user_name}: {remaining_text}\n"
+                    if update.message.reply_to_message and replied_message_text:
+                        response = f"{user_name}'s reply's post: \n\n{tweet_info['author']}\n\n{tweet_info['text']}"
+                    else:
+                        response += f"\n{tweet_info['author']}\n\n{tweet_info['text']}\n\n{tweet_info['url']}"
+
                     try:
                         # Delete the user's original message
+                        
+                        if tweet_info['media_images']:
+                            if len(tweet_info['media_images']) == 1:
+                                for image_url in tweet_info['media_images']:
+                                    print(f"hey image: {image_url}")
+                                    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_url, caption=response)
+                                    print("send?")
+                            else:
+                                media_files = []
+                                for image_url in tweet_info['media_images']:
+                                    # Create a caption for each image
+                                    media_files.append(InputMediaPhoto(media=image_url))
+
+                                # Send the media group
+                                await context.bot.send_media_group(chat_id=update.effective_chat.id, media=media_files)
+
+                                await context.bot.send_message(
+                                    chat_id=update.effective_chat.id,
+                                    text=response
+                                )
+                        else:
+                            await context.bot.send_message(
+                                    chat_id=update.effective_chat.id,
+                                    text=response
+                                )
                         if not update.message.reply_to_message:
                             await context.bot.delete_message(
                                 chat_id=update.effective_chat.id,
                                 message_id=update.message.message_id
                             )
-                        await context.bot.send_message(
-                            chat_id=update.effective_chat.id,
-                            text=response
-                        )
 
-                        # await context.bot.send_photo(chat_id=update.effective_chat.id, photo=open(tweet_info['media_images'], 'rb'))
+
                     except Exception as e:
 
                         # Log specific error for debugging
