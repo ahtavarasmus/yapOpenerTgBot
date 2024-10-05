@@ -1,7 +1,7 @@
 # Telegram bot that opens X links fully to the chat
 Name on telegram: @yapOpenerBot
 
-# For getting the bot running locally
+## For getting the bot running locally
 ### install
 ```
 python3 -m venv venv
